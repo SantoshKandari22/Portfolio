@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: theme("colors.paper");
+  color: theme("colors.ink.DEFAULT");
+}
+
+::selection {
+  background: theme("colors.indigo.DEFAULT");
+  color: white;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.sk-focus:focus-visible {
+  outline: 2px solid theme("colors.indigo.DEFAULT");
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* CSS box-model diagram used as a stats visualization in the About section */
+.box-model {
+  border: 1.5px dashed theme("colors.amber.DEFAULT");
+  padding: 10px;
+}
+.box-model__mid {
+  border: 1.5px dashed theme("colors.indigo.DEFAULT");
+  padding: 10px;
+}
+.box-model__inner {
+  background: theme("colors.surface");
+  border: 1px solid theme("colors.line");
+}
+
+/* devtools-style element-selection highlight on hover/focus */
+.inspect-card {
+  position: relative;
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.35s;
+}
+.inspect-card:hover,
+.inspect-card:focus-within {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 30px -18px rgba(20, 23, 31, 0.35);
+}
+.inspect-card::before {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 10px;
+  pointer-events: none;
+  transition: box-shadow 0.35s;
+}
+.inspect-card:hover::before,
+.inspect-card:focus-within::before {
+  box-shadow:
+    0 0 0 2px rgba(61, 90, 254, 0.35) inset,
+    0 0 0 6px rgba(255, 122, 69, 0.15) inset;
+}
+
+.diff-add {
+  color: theme("colors.okgreen");
+}
+.diff-add::before {
+  content: "+ ";
+  color: theme("colors.okgreen");
+}
+
+.tab-underline {
+  position: relative;
+}
+.tab-underline[data-active="true"]::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: theme("colors.indigo.DEFAULT");
+  border-radius: 2px;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: theme("colors.line");
+  border-radius: 4px;
+}
