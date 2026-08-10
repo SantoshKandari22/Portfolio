@@ -12,6 +12,11 @@ interface VisitorEmailData {
   githubProfile: string | null;
 }
 
+interface VisitorSubjectData {
+  githubProfile: string | null;
+  country: string;
+}
+
 export function renderVisitorEmail(d: VisitorEmailData): string {
   const row = (label: string, value: string) => `
     <tr>
@@ -44,4 +49,12 @@ export function renderVisitorEmail(d: VisitorEmailData): string {
 
 function escapeHtml(s: string) {
   return s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] as string));
+}
+
+export function renderVisitorSubject({ githubProfile, country }: VisitorSubjectData): string {
+  const safeCountry = country && country !== 'Unknown' ? country : 'somewhere';
+  if (githubProfile) {
+    return `Portfolio visit — github.com/${githubProfile}`;
+  }
+  return `Portfolio visit — ${safeCountry}`;
 }

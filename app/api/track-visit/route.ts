@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { UAParser } from 'ua-parser-js';
 import { Resend } from 'resend';
-import { renderVisitorEmail } from '@/lib/email';
+import { renderVisitorEmail, renderVisitorSubject } from '@/lib/email';
 
 export const runtime = 'nodejs';
 
-const NOTIFY_EMAIL = process.env.NOTIFY_EMAIL ?? 'kandarisantosh3@gmail.com';
+const NOTIFY_EMAIL = (process.env.NOTIFY_EMAIL ?? 'kandarisantosh3@gmail.com').trim();
+const SENDER_EMAIL = process.env.SENDER_EMAIL ?? 'onboarding@resend.dev';
+const SENDER_NAME = process.env.SENDER_NAME ?? 'Portfolio Visitor';
 const BOT_UA = /bot|crawl|spider|slurp|facebookexternalhit|headless|lighthouse|vercel-screenshot|preview/i;
 
 interface TrackPayload {
@@ -29,7 +31,10 @@ export async function POST(req: NextRequest) {
     }
 
     if (!process.env.RESEND_API_KEY) {
-      return NextResponse.json({ ok: false, error: 'Missing RESEND_API_KEY' }, { status: 500 });
+      return NextResponse.json(
+        { ok: false, error: 'Missing RESEND_API_KEY env var' },
+        { status: 500 }
+      );
     }
     const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -82,18 +87,31 @@ export async function POST(req: NextRequest) {
       githubProfile,
     });
 
-    await resend.emails.send({
-      from: 'Portfolio Visitor <onboarding@resend.dev>',
-      to: NOTIFY_EMAIL,
-      subject: githubProfile
-        ? `👀 ${githubProfile} just viewed your portfolio`
-        : `👀 New portfolio visitor — ${country}`,
-      html,
-    });
+    let emailId: string | null = null;
+    try {
+      const sendResult = (await resend.emails.send({
+        from: `${SENDER_NAME} <${SENDER_EMAIL}>`,
+        to: [NOTIFY_EMAIL],
+        replyTo: NOTIFY_EMAIL,
+        subject: renderVisitorSubject({ githubProfile, country }),
+        html,
+      })) as unknown as { data?: { id?: string } | null; error?: unknown } | null;
 
-    return NextResponse.json({ ok: true });
+      if (sendResult?.error) {
+        console.error('resend send error', sendResult.error);
+        return NextResponse.json({ ok: false, error: sendResult.error }, { status: 502 });
+      }
+      emailId = sendResult?.data?.id ?? null;
+    } catch (sendErr) {
+      console.error('resend send exception', sendErr);
+      const errMsg = sendErr instanceof Error ? sendErr.message : 'unknown send error';
+      return NextResponse.json({ ok: false, error: errMsg }, { status: 502 });
+    }
+
+    return NextResponse.json({ ok: true, id: emailId });
   } catch (err) {
     console.error('track-visit error', err);
-    return NextResponse.json({ ok: false }, { status: 500 });
+    const message = err instanceof Error ? err.message : 'unknown';
+    return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }
