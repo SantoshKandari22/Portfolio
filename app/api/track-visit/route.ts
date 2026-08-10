@@ -5,7 +5,6 @@ import { renderVisitorEmail } from '@/lib/email';
 
 export const runtime = 'nodejs';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
 const NOTIFY_EMAIL = process.env.NOTIFY_EMAIL ?? 'kandarisantosh3@gmail.com';
 const BOT_UA = /bot|crawl|spider|slurp|facebookexternalhit|headless|lighthouse|vercel-screenshot|preview/i;
 
@@ -28,6 +27,11 @@ export async function POST(req: NextRequest) {
     if (req.cookies.get('sk_owner')?.value === '1') {
       return NextResponse.json({ skipped: 'owner' });
     }
+
+    if (!process.env.RESEND_API_KEY) {
+      return NextResponse.json({ ok: false, error: 'Missing RESEND_API_KEY' }, { status: 500 });
+    }
+    const resend = new Resend(process.env.RESEND_API_KEY);
 
     const ip =
       req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
