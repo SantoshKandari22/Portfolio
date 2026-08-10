@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, Inter, IBM_Plex_Mono } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
+import VisitorTracker from "@/components/VisitorTracker";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -40,7 +42,12 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${spaceGrotesk.variable} ${inter.variable} ${plexMono.variable}`}>
-      <body className="font-body antialiased">{children}</body>
+      <body className="font-body antialiased">
+        {children}
+        <Suspense fallback={null}>
+          <VisitorTracker />
+        </Suspense>
+      </body>
     </html>
   );
 }

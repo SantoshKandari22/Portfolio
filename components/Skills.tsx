@@ -2,6 +2,7 @@
 
 import Reveal from "@/components/Reveal";
 import { DEPENDENCIES } from "@/lib/data";
+import GithubHeatmap from "@/components/GithubHeatmap";
 
 function renderEntries(entries: [string, string][]) {
   return entries.map(([k, v], i) => (
@@ -42,6 +43,11 @@ export default function Skills() {
 {`  ]
 }`}
             </pre>
+          </div>
+        </Reveal>
+        <Reveal delay={200}>
+          <div className="mt-8">
+            <GithubHeatmap />
           </div>
         </Reveal>
       </div>
